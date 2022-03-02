@@ -1,4 +1,4 @@
-I"�<h2 id="background">Background</h2>
+I"'<h2 id="background">Background</h2>
 
 <p>Recently, I was listening to “Why Lefties Exist,” an episode of my favorite podcast Stuff You Should Know, when near the end of the episode they mention how left-handed players “definitely have an advantage in sports in a lot of cases” and it captured my interest. The reason for their advantage is due to the majority of right-handed people so everyone learns how to play against the right hand. Let’s take boxing for example. If you’re a right-handed boxer and are constantly practicing how to protect yourself from right-handed jabs and hooks and all of a sudden, you’re facing a left-handed boxer, you’re going to be caught off guard and will most likely lose. Also, that left-handed boxer most likely practiced against multiple right-handed boxers so he will know how to defend against your right-handed jabs and punches.</p>
 
@@ -10,46 +10,46 @@
 
 <p>While the FIFA dataset doesn’t have any missing variables or NULL values, it has a lot of inforation that is not necessary for this project so first I had to make a dataframe that contained only their FIFA ID, name, overall score, preferred foot, and positions they play.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
-<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+  <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+  <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
 
-<span class="n">fifa21</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'players_21.csv'</span><span class="p">)</span>
-<span class="n">fifa21</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="n">values</span>
+  <span class="n">fifa21</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'players_21.csv'</span><span class="p">)</span>
+  <span class="n">fifa21</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="n">values</span>
 </code></pre></div></div>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array(['sofifa_id', 'player_url', 'short_name', 'long_name', 'age', 'dob',
-       'height_cm', 'weight_kg', 'nationality', 'club_name',
-       'league_name', 'league_rank', 'overall', 'potential', 'value_eur',
-       'wage_eur', 'player_positions', 'preferred_foot',
-       'international_reputation', 'weak_foot', 'skill_moves',
-       'work_rate', 'body_type', 'real_face', 'release_clause_eur',
-       'player_tags', 'team_position', 'team_jersey_number',
-       'loaned_from', 'joined', 'contract_valid_until', 'nation_position',
-       'nation_jersey_number', 'pace', 'shooting', 'passing', 'dribbling',
-       'defending', 'physic', 'gk_diving', 'gk_handling', 'gk_kicking',
-       'gk_reflexes', 'gk_speed', 'gk_positioning', 'player_traits',
-       'attacking_crossing', 'attacking_finishing',
-       'attacking_heading_accuracy', 'attacking_short_passing',
-       'attacking_volleys', 'skill_dribbling', 'skill_curve',
-       'skill_fk_accuracy', 'skill_long_passing', 'skill_ball_control',
-       'movement_acceleration', 'movement_sprint_speed',
-       'movement_agility', 'movement_reactions', 'movement_balance',
-       'power_shot_power', 'power_jumping', 'power_stamina',
-       'power_strength', 'power_long_shots', 'mentality_aggression',
-       'mentality_interceptions', 'mentality_positioning',
-       'mentality_vision', 'mentality_penalties', 'mentality_composure',
-       'defending_marking', 'defending_standing_tackle',
-       'defending_sliding_tackle', 'goalkeeping_diving',
-       'goalkeeping_handling', 'goalkeeping_kicking',
-       'goalkeeping_positioning', 'goalkeeping_reflexes', 'ls', 'st',
-       'rs', 'lw', 'lf', 'cf', 'rf', 'rw', 'lam', 'cam', 'ram', 'lm',
-       'lcm', 'cm', 'rcm', 'rm', 'lwb', 'ldm', 'cdm', 'rdm', 'rwb', 'lb',
-       'lcb', 'cb', 'rcb', 'rb'], dtype=object)
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  array(['sofifa_id', 'player_url', 'short_name', 'long_name', 'age', 'dob',
+         'height_cm', 'weight_kg', 'nationality', 'club_name',
+         'league_name', 'league_rank', 'overall', 'potential', 'value_eur',
+         'wage_eur', 'player_positions', 'preferred_foot',
+         'international_reputation', 'weak_foot', 'skill_moves',
+         'work_rate', 'body_type', 'real_face', 'release_clause_eur',
+         'player_tags', 'team_position', 'team_jersey_number',
+         'loaned_from', 'joined', 'contract_valid_until', 'nation_position',
+         'nation_jersey_number', 'pace', 'shooting', 'passing', 'dribbling',
+         'defending', 'physic', 'gk_diving', 'gk_handling', 'gk_kicking',
+         'gk_reflexes', 'gk_speed', 'gk_positioning', 'player_traits',
+         'attacking_crossing', 'attacking_finishing',
+         'attacking_heading_accuracy', 'attacking_short_passing',
+         'attacking_volleys', 'skill_dribbling', 'skill_curve',
+         'skill_fk_accuracy', 'skill_long_passing', 'skill_ball_control',
+         'movement_acceleration', 'movement_sprint_speed',
+         'movement_agility', 'movement_reactions', 'movement_balance',
+         'power_shot_power', 'power_jumping', 'power_stamina',
+         'power_strength', 'power_long_shots', 'mentality_aggression',
+         'mentality_interceptions', 'mentality_positioning',
+         'mentality_vision', 'mentality_penalties', 'mentality_composure',
+         'defending_marking', 'defending_standing_tackle',
+         'defending_sliding_tackle', 'goalkeeping_diving',
+         'goalkeeping_handling', 'goalkeeping_kicking',
+         'goalkeeping_positioning', 'goalkeeping_reflexes', 'ls', 'st',
+         'rs', 'lw', 'lf', 'cf', 'rf', 'rw', 'lam', 'cam', 'ram', 'lm',
+         'lcm', 'cm', 'rcm', 'rm', 'lwb', 'ldm', 'cdm', 'rdm', 'rwb', 'lb',
+         'lcb', 'cb', 'rcb', 'rb'], dtype=object)
 </code></pre></div></div>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[[</span><span class="s">'sofifa_id'</span><span class="p">,</span><span class="s">'short_name'</span><span class="p">,</span><span class="s">'overall'</span><span class="p">,</span><span class="s">'preferred_foot'</span><span class="p">,</span><span class="s">'player_positions'</span><span class="p">]]</span>
-<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[[</span><span class="s">'sofifa_id'</span><span class="p">,</span><span class="s">'short_name'</span><span class="p">,</span><span class="s">'overall'</span><span class="p">,</span><span class="s">'preferred_foot'</span><span class="p">,</span><span class="s">'player_positions'</span><span class="p">]]</span>
+  <span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div></div>
 
 <div>
@@ -124,8 +124,8 @@
 
 <p>The next step I took was to make the positions column simpler for my project. The positions column contains all the positions the player is suitable to play for in the game of FIFA, but the first position listed is what the player normally plays and is most likely their best position. So I created a column named ‘best_position’ with the best position of that player.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+  <span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div></div>
 
 <div>
@@ -206,8 +206,8 @@
 
 <p>Also, I got rid of any players in the dataframe whose best position was goalkeeper or ‘GK’ since this project is based on feet advantages and goalkeepers primarily use their hands in game.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">]</span><span class="o">!=</span><span class="s">'GK'</span><span class="p">]</span>
-<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">]</span><span class="o">!=</span><span class="s">'GK'</span><span class="p">]</span>
+  <span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div></div>
 
 <div>
@@ -288,24 +288,24 @@
 
 <p>Additionally, I created two columns for players rated 85+ (the best of the best) and 80+ (top professionals) to see if there was any significance in the preferred foot and the players rating.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span><span class="p">[</span><span class="s">'85+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">85</span>
-<span class="n">fifa21</span><span class="p">[</span><span class="s">'80+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">80</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">fifa21</span><span class="p">[</span><span class="s">'85+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">85</span>
+  <span class="n">fifa21</span><span class="p">[</span><span class="s">'80+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">80</span>
 </code></pre></div></div>
 
 <p>Lastly, for some data exploration I wanted to see if there was any difference in which part of the field the players play in. The field is split into three parts: defense, midfield, and offense. I created a new column that separated the players into those three parts of field (is what I’m calling them) depending on their best position.</p>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">define_pos</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
-    <span class="n">Position</span> <span class="o">=</span> <span class="n">col</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">def</span> <span class="nf">define_pos</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+      <span class="n">Position</span> <span class="o">=</span> <span class="n">col</span>
+
+      <span class="k">if</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'ST'</span><span class="p">,</span><span class="s">'LW'</span><span class="p">,</span><span class="s">'RW'</span><span class="p">,</span><span class="s">'CF'</span><span class="p">,</span><span class="s">'RF'</span><span class="p">,</span><span class="s">'LF'</span><span class="p">]:</span>
+          <span class="k">return</span> <span class="s">'Offense'</span>
+      <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'CAM'</span><span class="p">,</span><span class="s">'CM'</span><span class="p">,</span><span class="s">'LM'</span><span class="p">,</span><span class="s">'RM'</span><span class="p">,</span><span class="s">'CDM'</span><span class="p">]:</span>
+          <span class="k">return</span> <span class="s">'Midfield'</span>
+      <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'RB'</span><span class="p">,</span><span class="s">'CB'</span><span class="p">,</span><span class="s">'LB'</span><span class="p">,</span><span class="s">'LWB'</span><span class="p">,</span><span class="s">'RWB'</span><span class="p">]:</span>
+          <span class="k">return</span> <span class="s">'Defense'</span>
     
-    <span class="k">if</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'ST'</span><span class="p">,</span><span class="s">'LW'</span><span class="p">,</span><span class="s">'RW'</span><span class="p">,</span><span class="s">'CF'</span><span class="p">,</span><span class="s">'RF'</span><span class="p">,</span><span class="s">'LF'</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="s">'Offense'</span>
-    <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'CAM'</span><span class="p">,</span><span class="s">'CM'</span><span class="p">,</span><span class="s">'LM'</span><span class="p">,</span><span class="s">'RM'</span><span class="p">,</span><span class="s">'CDM'</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="s">'Midfield'</span>
-    <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'RB'</span><span class="p">,</span><span class="s">'CB'</span><span class="p">,</span><span class="s">'LB'</span><span class="p">,</span><span class="s">'LWB'</span><span class="p">,</span><span class="s">'RWB'</span><span class="p">]:</span>
-        <span class="k">return</span> <span class="s">'Defense'</span>
-    
-<span class="n">fifa21</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="n">define_pos</span><span class="p">)</span>
-<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+  <span class="n">fifa21</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="n">define_pos</span><span class="p">)</span>
+  <span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
 </code></pre></div></div>
 
 <div>
@@ -634,7 +634,7 @@ Name: preferred_foot, dtype: int64
 
 <p>When we split up the players by their preferred foot we see that there are 123 left-footed players above 80 rated and 308 right-footed players above 80 rated. I’m now going to use Microsoft Excel to do the Chi-Squared test since it provides a simple way to do it.</p>
 
-<p><img src="80_chi.png" alt="80_chi.png" /></p>
+<p><img src="/img/posts/left_feet/80_chi.png" alt="80_chi.png" /></p>
 
 <p>I’ve inserted an image of the table created and as a result we see that being left-footed is not significant in making you a higher rated player.</p>
 
@@ -660,7 +660,7 @@ Name: preferred_foot, dtype: int64
 
 <p>25% of professional soccer players are left-footed while in the general population of people, only 12% are. That alone should show that there is significance in whether left-footed players have an advantage in becoming a professional soccer player. But let’s try a Chi-Squared test.</p>
 
-<p><img src="pro_chi.png" alt="pro_chi.png" /></p>
+<p><img src="/img/posts/left_feet/pro_chi.png" alt="pro_chi.png" /></p>
 
 <p>I will admit, this is where the math is sketchy and this Chi-Squared test doesn’t validate anything. The reason is that we don’t know how many soccer players are amateurs and haven’t gone pro. We do know that less than 1% of soccer players go professional in the US so we can base the amount of amateurs off of that statistic. By dividing the number of pro players by 0.01, we get a general idea of the number of amateur players. Then if we multiply that amount by 12%, we get the number of amateur left-footed players. The difference of the two is then the number of amateur right-footed players. After doing all of this we find that being left-footed is a significant role in whether amateur soccer players go pro.</p>
 
