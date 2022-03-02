@@ -1,0 +1,691 @@
+I"�
+<h2 id="background">Background</h2>
+
+<p>Recently, I was listening to “Why Lefties Exist,” an episode of my favorite podcast Stuff You Should Know, when near the end of the episode they mention how left-handed players “definitely have an advantage in sports in a lot of cases” and it captured my interest. The reason for their advantage is due to the majority of right-handed people so everyone learns how to play against the right hand. Let’s take boxing for example. If you’re a right-handed boxer and are constantly practicing how to protect yourself from right-handed jabs and hooks and all of a sudden, you’re facing a left-handed boxer, you’re going to be caught off guard and will most likely lose. Also, that left-handed boxer most likely practiced against multiple right-handed boxers so he will know how to defend against your right-handed jabs and punches.</p>
+
+<p>While that example demonstrates a clear advantage, I wondered, does this apply to feet as well? Being a fan of soccer, I wondered if having a preferred left foot gave an advantage to soccer players. A surprising number of the top players in history (Lionel Messi, Diego Maradona, Mohammed Salah, etc.) were and are left-footed considering only 12 percent of people are left-footed. Was this by chance or do left-footed players have a greater chance of being better?</p>
+
+<h2 id="data-cleaning">Data Cleaning</h2>
+
+<p>The data I’m using is from the video game FIFA 21 as it has a large amount of data on most professional soccer players including the preferred foot of the player. While that information might be enough, FIFA also creates a general rating of the player’s ability. Obviously, this is subjective since there is no objective way to rate a player’s ability, but for the purpose of this project it serves as a decent way to determine whether left-footed soccer players are better than right-footed ones.</p>
+
+<p>While the FIFA dataset doesn’t have any missing variables or NULL values, it has a lot of inforation that is not necessary for this project so first I had to make a dataframe that contained only their FIFA ID, name, overall score, preferred foot, and positions they play.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+
+<span class="n">fifa21</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'players_21.csv'</span><span class="p">)</span>
+<span class="n">fifa21</span><span class="p">.</span><span class="n">columns</span><span class="p">.</span><span class="n">values</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>array(['sofifa_id', 'player_url', 'short_name', 'long_name', 'age', 'dob',
+       'height_cm', 'weight_kg', 'nationality', 'club_name',
+       'league_name', 'league_rank', 'overall', 'potential', 'value_eur',
+       'wage_eur', 'player_positions', 'preferred_foot',
+       'international_reputation', 'weak_foot', 'skill_moves',
+       'work_rate', 'body_type', 'real_face', 'release_clause_eur',
+       'player_tags', 'team_position', 'team_jersey_number',
+       'loaned_from', 'joined', 'contract_valid_until', 'nation_position',
+       'nation_jersey_number', 'pace', 'shooting', 'passing', 'dribbling',
+       'defending', 'physic', 'gk_diving', 'gk_handling', 'gk_kicking',
+       'gk_reflexes', 'gk_speed', 'gk_positioning', 'player_traits',
+       'attacking_crossing', 'attacking_finishing',
+       'attacking_heading_accuracy', 'attacking_short_passing',
+       'attacking_volleys', 'skill_dribbling', 'skill_curve',
+       'skill_fk_accuracy', 'skill_long_passing', 'skill_ball_control',
+       'movement_acceleration', 'movement_sprint_speed',
+       'movement_agility', 'movement_reactions', 'movement_balance',
+       'power_shot_power', 'power_jumping', 'power_stamina',
+       'power_strength', 'power_long_shots', 'mentality_aggression',
+       'mentality_interceptions', 'mentality_positioning',
+       'mentality_vision', 'mentality_penalties', 'mentality_composure',
+       'defending_marking', 'defending_standing_tackle',
+       'defending_sliding_tackle', 'goalkeeping_diving',
+       'goalkeeping_handling', 'goalkeeping_kicking',
+       'goalkeeping_positioning', 'goalkeeping_reflexes', 'ls', 'st',
+       'rs', 'lw', 'lf', 'cf', 'rf', 'rw', 'lam', 'cam', 'ram', 'lm',
+       'lcm', 'cm', 'rcm', 'rm', 'lwb', 'ldm', 'cdm', 'rdm', 'rwb', 'lb',
+       'lcb', 'cb', 'rcb', 'rb'], dtype=object)
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[[</span><span class="s">'sofifa_id'</span><span class="p">,</span><span class="s">'short_name'</span><span class="p">,</span><span class="s">'overall'</span><span class="p">,</span><span class="s">'preferred_foot'</span><span class="p">,</span><span class="s">'player_positions'</span><span class="p">]]</span>
+<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sofifa_id</th>
+      <th>short_name</th>
+      <th>overall</th>
+      <th>preferred_foot</th>
+      <th>player_positions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>158023</td>
+      <td>L. Messi</td>
+      <td>93</td>
+      <td>Left</td>
+      <td>RW, ST, CF</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20801</td>
+      <td>Cristiano Ronaldo</td>
+      <td>92</td>
+      <td>Right</td>
+      <td>ST, LW</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>200389</td>
+      <td>J. Oblak</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>GK</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>188545</td>
+      <td>R. Lewandowski</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>ST</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190871</td>
+      <td>Neymar Jr</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>LW, CAM</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>The next step I took was to make the positions column simpler for my project. The positions column contains all the positions the player is suitable to play for in the game of FIFA, but the first position listed is what the player normally plays and is most likely their best position. So I created a column named ‘best_position’ with the best position of that player.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">','</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sofifa_id</th>
+      <th>short_name</th>
+      <th>overall</th>
+      <th>preferred_foot</th>
+      <th>player_positions</th>
+      <th>best_position</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>158023</td>
+      <td>L. Messi</td>
+      <td>93</td>
+      <td>Left</td>
+      <td>RW, ST, CF</td>
+      <td>RW</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20801</td>
+      <td>Cristiano Ronaldo</td>
+      <td>92</td>
+      <td>Right</td>
+      <td>ST, LW</td>
+      <td>ST</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>200389</td>
+      <td>J. Oblak</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>GK</td>
+      <td>GK</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>188545</td>
+      <td>R. Lewandowski</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>ST</td>
+      <td>ST</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190871</td>
+      <td>Neymar Jr</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>LW, CAM</td>
+      <td>LW</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Also, I got rid of any players in the dataframe whose best position was goalkeeper or ‘GK’ since this project is based on feet advantages and goalkeepers primarily use their hands in game.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="n">fifa21</span><span class="p">[</span><span class="s">'player_positions'</span><span class="p">]</span><span class="o">!=</span><span class="s">'GK'</span><span class="p">]</span>
+<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sofifa_id</th>
+      <th>short_name</th>
+      <th>overall</th>
+      <th>preferred_foot</th>
+      <th>player_positions</th>
+      <th>best_position</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>158023</td>
+      <td>L. Messi</td>
+      <td>93</td>
+      <td>Left</td>
+      <td>RW, ST, CF</td>
+      <td>RW</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20801</td>
+      <td>Cristiano Ronaldo</td>
+      <td>92</td>
+      <td>Right</td>
+      <td>ST, LW</td>
+      <td>ST</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>188545</td>
+      <td>R. Lewandowski</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>ST</td>
+      <td>ST</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190871</td>
+      <td>Neymar Jr</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>LW, CAM</td>
+      <td>LW</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>192985</td>
+      <td>K. De Bruyne</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>CAM, CM</td>
+      <td>CAM</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p>Additionally, I created two columns for players rated 85+ (the best of the best) and 80+ (top professionals) to see if there was any significance in the preferred foot and the players rating.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span><span class="p">[</span><span class="s">'85+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">85</span>
+<span class="n">fifa21</span><span class="p">[</span><span class="s">'80+'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'overall'</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">80</span>
+</code></pre></div></div>
+
+<p>Lastly, for some data exploration I wanted to see if there was any difference in which part of the field the players play in. The field is split into three parts: defense, midfield, and offense. I created a new column that separated the players into those three parts of field (is what I’m calling them) depending on their best position.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">define_pos</span><span class="p">(</span><span class="n">col</span><span class="p">):</span>
+    <span class="n">Position</span> <span class="o">=</span> <span class="n">col</span>
+    
+    <span class="k">if</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'ST'</span><span class="p">,</span><span class="s">'LW'</span><span class="p">,</span><span class="s">'RW'</span><span class="p">,</span><span class="s">'CF'</span><span class="p">,</span><span class="s">'RF'</span><span class="p">,</span><span class="s">'LF'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s">'Offense'</span>
+    <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'CAM'</span><span class="p">,</span><span class="s">'CM'</span><span class="p">,</span><span class="s">'LM'</span><span class="p">,</span><span class="s">'RM'</span><span class="p">,</span><span class="s">'CDM'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s">'Midfield'</span>
+    <span class="k">elif</span> <span class="n">Position</span> <span class="ow">in</span> <span class="p">[</span><span class="s">'RB'</span><span class="p">,</span><span class="s">'CB'</span><span class="p">,</span><span class="s">'LB'</span><span class="p">,</span><span class="s">'LWB'</span><span class="p">,</span><span class="s">'RWB'</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="s">'Defense'</span>
+    
+<span class="n">fifa21</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">]</span> <span class="o">=</span> <span class="n">fifa21</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="nb">apply</span><span class="p">(</span><span class="n">define_pos</span><span class="p">)</span>
+<span class="n">fifa21</span><span class="p">.</span><span class="n">head</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>sofifa_id</th>
+      <th>short_name</th>
+      <th>overall</th>
+      <th>preferred_foot</th>
+      <th>player_positions</th>
+      <th>best_position</th>
+      <th>85+</th>
+      <th>80+</th>
+      <th>part_of_field</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>158023</td>
+      <td>L. Messi</td>
+      <td>93</td>
+      <td>Left</td>
+      <td>RW, ST, CF</td>
+      <td>RW</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Offense</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>20801</td>
+      <td>Cristiano Ronaldo</td>
+      <td>92</td>
+      <td>Right</td>
+      <td>ST, LW</td>
+      <td>ST</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Offense</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>188545</td>
+      <td>R. Lewandowski</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>ST</td>
+      <td>ST</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Offense</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>190871</td>
+      <td>Neymar Jr</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>LW, CAM</td>
+      <td>LW</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Offense</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>192985</td>
+      <td>K. De Bruyne</td>
+      <td>91</td>
+      <td>Right</td>
+      <td>CAM, CM</td>
+      <td>CAM</td>
+      <td>True</td>
+      <td>True</td>
+      <td>Midfield</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">fifa21</span><span class="p">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s">'fifa21players.csv'</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h2 id="data-exploration">Data Exploration</h2>
+
+<p>It’s time to get to the fun part. To start off, we want to see the count of the preferred foot for all the players in the dataframe.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'fifa21players.csv'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Preferred Foot Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Preferred Foot'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'preferred_foot_count.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_15_0.png" alt="png" /></p>
+
+<p>From what we can see, 25% of professional players are left-footed. That is a very high percentage of players compared to the average population percent of 12%.</p>
+
+<p>Next, I wanted to look at the number of players in different parts of the field.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'part_of_field'</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">().</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Part of Field Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Part of Field'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'part_of_field.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_17_0.png" alt="png" /></p>
+
+<p>The midfield has the highest percentage of players with 42% as it has the most number of postions. Also, the number of players in different parts of the field depends highly on the formations the teams use. Most teams use a formation with 3-4 defenders, 3-4 midfielders and 2-3 forwards so the proportions make sense.</p>
+
+<p>However, let’s look at the parts of field count when separated by the preferred foot.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'part_of_field'</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s">'part_of_field'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">().</span><span class="n">index</span><span class="p">,</span><span class="n">hue</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Part of Field Count - Seperated by Preferred Foot'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Part of Field'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">'Preferred Foot'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'part_of_field_sep.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_19_0.png" alt="png" /></p>
+
+<p>We would expect to see an even 25% of players having a preference for their left foot distributed across all the parts of the field. What we actually get is an uneven spread of percentages across the parts of field. One of the more significant sections is the defence where the percent of the left-footed players looks to be around 50%. This is something to investigate further.</p>
+
+<p>So let’s take a look at the player position counts.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'best_position'</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">().</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Player Postions Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Player Positions'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'positions.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_21_0.png" alt="png" /></p>
+
+<p>The number of players per position also is highly dependant on formation. Most formations consist of 2-3 centerbacks (CB) and 1-2 strikers (ST). There are also a lot of formations with 2 center midfielders (CM). What really confirms that this data is accurate is that for the postions that are based on one side (left or right), there is an equal amount of the players on the other side. For example, there is an equal number of left backs as there are right backs since there are no formations that has only one and not the other. There are some small discrepencies since I’ve eliminated the positions list to make a best position column.</p>
+
+<p>Now, we know there is going to be a difference in the percentages of left-footed players but let’s separate the positions by the preferred foot like we did with the part of field to see if there is any position that is significant.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'best_position'</span><span class="p">,</span><span class="n">hue</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Player Postions Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Player Positions'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">'Preferred Foot'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'positions_sep.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_23_0.png" alt="png" /></p>
+
+<p>The graph shows us that the left sided players have a higher percentage of left-footed players with left backs being the most significant position. The number of left-footed left backs is much higher than the number of right-footed left backs. Let’s look into this further.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span><span class="o">==</span><span class="s">'LB'</span><span class="p">],</span><span class="n">x</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span><span class="o">==</span><span class="s">'LB'</span><span class="p">][</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span><span class="o">==</span><span class="s">'LB'</span><span class="p">][</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Left Backs'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Preferred Foot'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'left_backs.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_25_0.png" alt="png" /></p>
+
+<p>90% of left backs are left-footed! That is an extremely high percentage again comparing to the average percentage of left-footed perople. Not only that but it’s a very high number of left-footed players in the dataset. To check this we can create a new dataframe that contains all the positions except the left backs.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">sans_lb</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'best_position'</span><span class="p">]</span><span class="o">!=</span><span class="s">'LB'</span><span class="p">]</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">sans_lb</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">sans_lb</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">sans_lb</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Preferred Foot Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Preferred Foot'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'sans_left_back_count.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_27_0.png" alt="png" /></p>
+
+<p>Left backs account for 5% of all left-footed players. That is a massive amount when you consider that left backs and right backs are only the 5th and 6th most popular positions.</p>
+
+<h2 id="chi-squared-tests">Chi-Squared Tests</h2>
+
+<p>To determine whether or not having a preferred left-foot gives you a better chance at being a top player, we would need to run a simple A/B test and a Chi-Squared test to verify the results.</p>
+
+<p>We’re going to start with players that are 85+ so let’s look at the count plot for those players.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'85+'</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s">'85+'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">().</span><span class="n">index</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'85+'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'85+'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'85+ Overall Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'85+ Overall'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'85_overall.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_30_0.png" alt="png" /></p>
+
+<p>There are only 84 players total that are 85 rated or higher, and that’s without the 84 being split up between being left or right-footed. The number of players is so low it’s being considered as 0% of the total number of players and it’s definitely too low to determine if there is any significance.</p>
+
+<p>Let’s move onto 80+ rated players.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s">'80+'</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'80+'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'80+'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'80+ Overall Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'80+ Overall'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'80_overall.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_32_0.png" alt="png" /></p>
+
+<p>Here we have at least 3% of the players so we can try to work with this to see if there is any significance between being left-footed and being a better player.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'80+'</span><span class="p">,</span><span class="n">hue</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'80+ Overall Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'80+ Overall'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s">'Preferred Foot'</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'80plus_sep.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_34_0.png" alt="png" /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'80+'</span><span class="p">]</span><span class="o">==</span><span class="bp">True</span><span class="p">][</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Right    308
+Left     123
+Name: preferred_foot, dtype: int64
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s">'80+'</span><span class="p">]</span><span class="o">==</span><span class="bp">False</span><span class="p">][</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Right    12275
+Left      4155
+Name: preferred_foot, dtype: int64
+</code></pre></div></div>
+
+<p>When we split up the players by their preferred foot we see that there are 123 left-footed players above 80 rated and 308 right-footed players above 80 rated. I’m now going to use Microsoft Excel to do the Chi-Squared test since it provides a simple way to do it.</p>
+
+<p><img src="80_chi.png" alt="80_chi.png" /></p>
+
+<p>I’ve inserted an image of the table created and as a result we see that being left-footed is not significant in making you a higher rated player.</p>
+
+<p>However, maybe there isn’t a relation between being a higher rated player and your preferred foot but being a professional soccer player is already a very high level that many do not achieve. Is there a better chance to become a professional soccer player if you are left-footed? Let’s take a look again at the first graph we created.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="p">.</span><span class="n">countplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">,</span><span class="n">x</span><span class="o">=</span><span class="s">'preferred_foot'</span><span class="p">)</span>
+
+<span class="n">abs_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="n">rel_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'preferred_foot'</span><span class="p">].</span><span class="n">value_counts</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">).</span><span class="n">values</span> <span class="o">*</span> <span class="mi">100</span>
+<span class="n">lbls</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s">'</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s"> (</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">1</span><span class="p">]:.</span><span class="mi">0</span><span class="n">f</span><span class="si">}</span><span class="s">%)'</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">abs_values</span><span class="p">,</span> <span class="n">rel_values</span><span class="p">)]</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">bar_label</span><span class="p">(</span><span class="n">container</span><span class="o">=</span><span class="n">ax</span><span class="p">.</span><span class="n">containers</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="n">lbls</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_title</span><span class="p">(</span><span class="s">'Preferred Foot Player Count'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="p">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s">'Number of Players'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">ax</span><span class="p">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s">'Preferred Foot'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">);</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">savefig</span><span class="p">(</span><span class="s">'preferred_foot_count.jpg'</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/left_feet/output_40_0.png" alt="png" /></p>
+
+<p>25% of professional soccer players are left-footed while in the general population of people, only 12% are. That alone should show that there is significance in whether left-footed players have an advantage in becoming a professional soccer player. But let’s try a Chi-Squared test.</p>
+
+<p><img src="pro_chi.png" alt="pro_chi.png" /></p>
+
+<p>I will admit, this is where the math is sketchy and this Chi-Squared test doesn’t validate anything. The reason is that we don’t know how many soccer players are amateurs and haven’t gone pro. We do know that less than 1% of soccer players go professional in the US so we can base the amount of amateurs off of that statistic. By dividing the number of pro players by 0.01, we get a general idea of the number of amateur players. Then if we multiply that amount by 12%, we get the number of amateur left-footed players. The difference of the two is then the number of amateur right-footed players. After doing all of this we find that being left-footed is a significant role in whether amateur soccer players go pro.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>It seems that left-footed players do have an advantage, but only when it comes to reaching the professional level. Once you are a professional, your rating is not effected by your preferred foot. But why is that?</p>
+
+<p>My guess is that once you’re a professional, you train for both feet. I did not consider the ability of the weak foot that FIFA provides because it is subjective, but professionals spend all day training and they probably work with both feet. When you’re an amateur, the people you play against aren’t accustomed to people playing with their left foot so it creates an advantage for the left-footed player. Once you’re a professional you prepare so that you can face both left and right-footed players equally.</p>
+
+<p>What about left backs? Why is that position the only position (LWB being the same position essentially) that has a higher amount of left-footed players than right-footed ones?</p>
+
+<p>To understand this you need to know soccer. Positions on the left side of the field generally have a higher percentage of left-footed players and I believe it’s due to the ability to cross the ball. Crossing the ball is a common tactic and ability used by teams to help create goals. If a left-footed player is running down the left side of the field and wants to cross the ball, he doesn’t need to break his stride to cross it. However if he was right-footed, he would break his stride to cut back and set it up for his right foot to cross it wasting precious seconds and disrupting the momentum.</p>
+
+<p>But if crossing was the only reason, then surely every position on the left side would have more left-footed players than right-footed ones, right? From what I know, it is much more popular to have your left back cross the ball. It has become a very modern tactic to have your (generally) fast left and right back assist in the attack and crossing the ball into the center where you have strikers waiting to head the ball into the goal. For midfielders and forwards or wingers, it also serves them to have the opposite foot be their strong foot as they can cut in towards the center of the pitch (to be closer and at a better angle at the goal) and take a shot. Left and right backs generally cross the ball, they don’t shoot.</p>
+
+<p>Another reason is defensively. When a player needs to clear the ball from the defensive area, it is almost a law in soccer to never clear it through the middle as that creates a greater chance for the other team to have a direct chance at goal. Therefore it serves them to clear the ball down the sideline with the foot that is closer to the sideline. Then there is also the idea of the backfoot being your dominant foot and how by pressuring the attacker you push them towards the sideline, but that’s more advanced and even more complicated to explain so I will leave it at that.</p>
+
+<h2 id="data-sources">Data Sources</h2>
+
+<p>FIFA dataset: <a href="https://www.kaggle.com/stefanoleone992/fifa-21-complete-player-dataset">https://www.kaggle.com/stefanoleone992/fifa-21-complete-player-dataset</a></p>
+
+<p>Left-footed statistics: https://www.psychologytoday.com/us/blog/the-asymmetric-brain/202009/large-study-reveals-how-many-people-are-left-footed</p>
+
+<p>Stuff You Should Know podcast: https://www.iheart.com/podcast/105-stuff-you-should-know-26940277/episode/selects-why-do-lefties-exist-89792279/</p>
+
+<p><strong>Thank you for reading my first data analysis post! I am always learning and willing to learn so if you have any constructive criticism or comments, please feel free to contact me!</strong></p>
+:ET
