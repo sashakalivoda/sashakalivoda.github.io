@@ -1,4 +1,4 @@
-I"+�<p><strong>Note: This data and program was created before the New York Times purchased Wordle.</strong></p>
+I"2�<p><strong>Note: This data and program was created before the New York Times purchased Wordle.</strong></p>
 
 <h2 id="how-to-play">How to play</h2>
 
@@ -8,7 +8,7 @@
 
 <p>One day I was talking to my friend and she told me that her teacher created a program that would give a list of possible words with every guess you make. So you would guess the word and then input the color pattern and then using what information is given, the program would narrow down the list of all possible five-letter words to only the ones possible. This sounded like a fun little challenge for me to make at home so I decided to go ahead and try it. But I also wondered, what if it could suggest the most likely answer?</p>
 
-<p>But how does one figure out the most likely answer? The game is tricky because at the start of the game you want to guess words with letters that are likely to be in the word and can narrow down the possibilities. Many people guess words with a lot of vowels such as AUDIO or ADIEU so that they can narrow down which vowels are in the word. This is a great tactic, even though they sacrifice a guess, knowing that the first word is never going to be correct (It’s possible that the answer could one day be AUDIO, but ADIEU is French and is not a possible solution). Then there are the consonants that show up the most often in words such as S, R, T, N, and L. These letters show up most often in the English language, but does it apply to five-letter words? Also, the words that are the solutions to Wordle are specifically chosen. The solution list is a list of five-letter words * <em>a fifth</em> * of the size of all five-letter words.</p>
+<p>But how does one figure out the most likely answer? The game is tricky because at the start of the game you want to guess words with letters that are likely to be in the word and can narrow down the possibilities. Many people guess words with a lot of vowels such as AUDIO or ADIEU so that they can narrow down which vowels are in the word. This is a great tactic, even though they sacrifice a guess, knowing that the first word is never going to be correct (It’s possible that the answer could one day be AUDIO, but ADIEU is French and is not a possible solution). Then there are the consonants that show up the most often in words such as S, R, T, N, and L. These letters show up most often in the English language, but does it apply to five-letter words? Also, the words that are the solutions to Wordle are specifically chosen. The solution list is a list of five-letter words <strong>a fifth</strong> of the size of all five-letter words.</p>
 
 <p>Are the letters in the solutions list as common as the letters in all possible five-letter words? This is what I set to figure out.</p>
 
@@ -16,13 +16,12 @@
 
 <p>We are going to need these packages for later on so we should import them now.</p>
 
-<div class="language-md highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">```</span><span class="nl">python
-</span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
 <span class="kn">from</span> <span class="nn">string</span> <span class="kn">import</span> <span class="n">ascii_lowercase</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
 <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
-<span class="p">```</span>
+
 </code></pre></div></div>
 
 <h2 id="creating-a-file-of-five-letter-words">Creating a file of five-letter words</h2>
@@ -135,34 +134,34 @@
 <p>We can now check that the dictionary does have a count for the letters.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">words_dict</span>
-</code></pre></div></div>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{'a': 8392,
- 'b': 2089,
- 'c': 2744,
- 'd': 2811,
- 'e': 7800,
- 'f': 1238,
- 'g': 1971,
- 'h': 2284,
- 'i': 5067,
- 'j': 376,
- 'k': 1743,
- 'l': 4246,
- 'm': 2494,
- 'n': 4043,
- 'o': 5219,
- 'p': 2299,
- 'q': 139,
- 'r': 5143,
- 's': 6537,
- 't': 4189,
- 'u': 3361,
- 'v': 878,
- 'w': 1171,
- 'x': 361,
- 'y': 2521,
- 'z': 474}
+
+    <span class="p">{</span><span class="s">'a'</span><span class="p">:</span> <span class="mi">8392</span><span class="p">,</span>
+     <span class="s">'b'</span><span class="p">:</span> <span class="mi">2089</span><span class="p">,</span>
+     <span class="s">'c'</span><span class="p">:</span> <span class="mi">2744</span><span class="p">,</span>
+     <span class="s">'d'</span><span class="p">:</span> <span class="mi">2811</span><span class="p">,</span>
+     <span class="s">'e'</span><span class="p">:</span> <span class="mi">7800</span><span class="p">,</span>
+     <span class="s">'f'</span><span class="p">:</span> <span class="mi">1238</span><span class="p">,</span>
+     <span class="s">'g'</span><span class="p">:</span> <span class="mi">1971</span><span class="p">,</span>
+     <span class="s">'h'</span><span class="p">:</span> <span class="mi">2284</span><span class="p">,</span>
+     <span class="s">'i'</span><span class="p">:</span> <span class="mi">5067</span><span class="p">,</span>
+     <span class="s">'j'</span><span class="p">:</span> <span class="mi">376</span><span class="p">,</span>
+     <span class="s">'k'</span><span class="p">:</span> <span class="mi">1743</span><span class="p">,</span>
+     <span class="s">'l'</span><span class="p">:</span> <span class="mi">4246</span><span class="p">,</span>
+     <span class="s">'m'</span><span class="p">:</span> <span class="mi">2494</span><span class="p">,</span>
+     <span class="s">'n'</span><span class="p">:</span> <span class="mi">4043</span><span class="p">,</span>
+     <span class="s">'o'</span><span class="p">:</span> <span class="mi">5219</span><span class="p">,</span>
+     <span class="s">'p'</span><span class="p">:</span> <span class="mi">2299</span><span class="p">,</span>
+     <span class="s">'q'</span><span class="p">:</span> <span class="mi">139</span><span class="p">,</span>
+     <span class="s">'r'</span><span class="p">:</span> <span class="mi">5143</span><span class="p">,</span>
+     <span class="s">'s'</span><span class="p">:</span> <span class="mi">6537</span><span class="p">,</span>
+     <span class="s">'t'</span><span class="p">:</span> <span class="mi">4189</span><span class="p">,</span>
+     <span class="s">'u'</span><span class="p">:</span> <span class="mi">3361</span><span class="p">,</span>
+     <span class="s">'v'</span><span class="p">:</span> <span class="mi">878</span><span class="p">,</span>
+     <span class="s">'w'</span><span class="p">:</span> <span class="mi">1171</span><span class="p">,</span>
+     <span class="s">'x'</span><span class="p">:</span> <span class="mi">361</span><span class="p">,</span>
+     <span class="s">'y'</span><span class="p">:</span> <span class="mi">2521</span><span class="p">,</span>
+     <span class="s">'z'</span><span class="p">:</span> <span class="mi">474</span><span class="p">}</span>
 </code></pre></div></div>
 
 <p>We can see that it’s working, but it’s hard to see how they are different. So we can now put them into graphs.</p>
@@ -214,19 +213,18 @@
                     <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="n">word</span><span class="p">.</span><span class="n">index</span><span class="p">(</span><span class="n">char</span><span class="p">):</span>
                         <span class="n">letter_loc</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
     <span class="k">return</span> <span class="n">letter_loc</span>
-</code></pre></div></div>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>E located in word list:  {0: 616, 1: 2574, 2: 1054, 3: 2121, 4: 1435}
-E located in Wordle:  {0: 458, 1: 2189, 2: 908, 3: 1961, 4: 1145}
 
-Count of the letter E in Words list:  7800
-Count of the letter E in Wordle list:  6661
+    <span class="n">E</span> <span class="n">located</span> <span class="ow">in</span> <span class="n">word</span> <span class="nb">list</span><span class="p">:</span>  <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">616</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2574</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">1054</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">2121</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">1435</span><span class="p">}</span>
+    <span class="n">E</span> <span class="n">located</span> <span class="ow">in</span> <span class="n">Wordle</span><span class="p">:</span>  <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mi">458</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mi">2189</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">908</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">1961</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">1145</span><span class="p">}</span>
 
-Probability of E in the third position in words list:  0.013242869707249652
-Probability of E in the third position in Worldle:  0.013999383287079864
-</code></pre></div></div>
+    <span class="n">Count</span> <span class="n">of</span> <span class="n">the</span> <span class="n">letter</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">Words</span> <span class="nb">list</span><span class="p">:</span>  <span class="mi">7800</span>
+    <span class="n">Count</span> <span class="n">of</span> <span class="n">the</span> <span class="n">letter</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">Wordle</span> <span class="nb">list</span><span class="p">:</span>  <span class="mi">6661</span>
 
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">wordle_total_prob</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">Probability</span> <span class="n">of</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">third</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">words</span> <span class="nb">list</span><span class="p">:</span>  <span class="mf">0.013242869707249652</span>
+    <span class="n">Probability</span> <span class="n">of</span> <span class="n">E</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">third</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">Worldle</span><span class="p">:</span>  <span class="mf">0.013999383287079864</span>
+
+<span class="n">wordle_total_prob</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">letters</span><span class="p">:</span>
     <span class="n">num_of_letters</span> <span class="o">=</span> <span class="n">wordle_dict</span><span class="p">[</span><span class="n">letter</span><span class="p">]</span>
     <span class="n">p_of_letter</span> <span class="o">=</span> <span class="p">[</span><span class="n">num_of_letters</span><span class="o">/</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">wordle_list</span><span class="p">)</span><span class="o">*</span><span class="mi">5</span><span class="p">)]</span><span class="o">*</span><span class="mi">5</span>
