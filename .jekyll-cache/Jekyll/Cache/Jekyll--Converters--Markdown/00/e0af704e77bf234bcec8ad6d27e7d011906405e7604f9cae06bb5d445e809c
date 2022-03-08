@@ -1,4 +1,4 @@
-I"[�<p><strong>Note: The data used and this article was created before the New York Times purchased Wordle.</strong></p>
+I"?�<p><strong>Note: The data used and this article was created before the New York Times purchased Wordle.</strong></p>
 
 <h2 id="how-to-play">How to play</h2>
 
@@ -8,7 +8,7 @@
 
 <p>One day I was talking to my friend and she told me that her teacher created a program that would give a list of possible words with every guess you make. So you would guess the word and then input the color pattern and then using what information is given, the program would narrow down the list of all possible five-letter words to only the ones possible. This sounded like a fun little challenge for me to make at home so I decided to go ahead and try it. But I also wondered, what if it could suggest the most likely answer?</p>
 
-<p>But how does one figure out the most likely answer? The game is tricky because at the start of the game you want to guess words with letters that are likely to be in the word and can narrow down the possibilities. Many people guess words with a lot of vowels such as AUDIO or ADIEU so that they can narrow down which vowels are in the word. This is a great tactic, even though they sacrifice a guess, knowing that the first word is never going to be correct (It’s possible that the answer could one day be AUDIO, but ADIEU is French and is not a possible solution). Then there are the consonants that show up the most often in words such as S, R, T, N, and L. These letters show up most often in the English language, but does it apply to five-letter words? Also, the words that are the solutions to Wordle are specifically chosen. The solution list is a list of five-letter words * <em>a fifth</em> * of the size of all five-letter words.</p>
+<p>But how does one figure out the most likely answer? The game is tricky because at the start of the game you want to guess words with letters that are likely to be in the word and can narrow down the possibilities. Many people guess words with a lot of vowels such as AUDIO or ADIEU so that they can narrow down which vowels are in the word. This is a great tactic, even though they sacrifice a guess, knowing that the first word is never going to be correct (It’s possible that the answer could one day be AUDIO, but ADIEU is French and is not a possible solution). Then there are the consonants that show up the most often in words such as S, R, T, N, and L. These letters show up most often in the English language, but does it apply to five-letter words? Also, the words that are the solutions to Wordle are specifically chosen. The solution list is a list of five-letter words <em>a fifth</em> of the size of all five-letter words.</p>
 
 <p>Are the letters in the solutions list as common as the letters in all possible five-letter words? This is what I set to figure out.</p>
 
@@ -26,7 +26,7 @@
 
 <h2 id="creating-a-file-of-five-letter-words">Creating a file of five-letter words</h2>
 
-<p>I looked for a list of five-letter words all over the internet but I came up with nothing (now there’s a list on Kaggle made specifically for Wordle, we will talk about that later). So instead I had to get a file of all English words and then cut out the words that are longer than five letters. I found the file on Github on this <strong>page</strong>. As you can imagine, the file size of the list of English words is massive and it takes a while to parse through it, so I would suggest saving it as a separate file.</p>
+<p>I looked for a list of five-letter words all over the internet but I came up with nothing (now there’s a list on Kaggle made specifically for Wordle). Instead I had to get a file of all English words and then cut out the words that are longer than five letters. I found the file on Github on this <a href="https://github.com/dwyl/english-words">page</a>. As you can imagine, the file size of the list of English words is massive and it takes a while to parse through it, so I would suggest saving it as a separate file.</p>
 
 <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
   <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>
@@ -100,7 +100,7 @@
 
 <h2 id="comparing-lists">Comparing lists</h2>
 
-<p>The benefit of the Wordle solution list being set is that there is a list of the solutions on the internet so we can actually compare all the solutions to the list of all possible words. I got the list of solutions to Wordle <strong>here</strong>.</p>
+<p>The benefit of the Wordle solution list being set is that there is a list of the solutions on the internet so we can actually compare all the solutions to the list of all possible words. I got the list of solutions to Wordle <a href="https://controlc.com/8fbd6bfd">here</a>.</p>
 
 <p>To start, we break up the list of all five-letter words into a dictionary of the letters and the count of those letters. We will also do that with the list of Wordle solutions. To be able to do that we had to parse through all the words and split each word into five letters. For each letter that was counted, the count increased by one.</p>
 
@@ -332,7 +332,7 @@
 
 <p>When finding the most probable word, we see that words that have the letter ‘S’ and ‘A’ repeating are in the first couple of words since we are basing this off the probability of the letters in their positions. Since ‘S’ and ‘R’ are the most common consonants we see them repeating often, as well as the vowels that are very common like ‘A’ and ‘E’.</p>
 
-<p>But with the game, we know that SARSA or SARRA isn’t going to be a solution, nor is it a good word to guess to start the game. Words that are good to guess are probable but also contain a variety of letters since you are able to narrow down what letters are in the word or not.</p>
+<p>But with the game, we know that SARSA or SARRA isn’t going to be a solution, nor is it a good word to guess to start the game. Words that are good to guess are probable but also contain a variety of letters since you are able to narrow down what letters are in the solution or not.</p>
 
 <p>We’re going to edit the program a little bit so that when the word repeats a letter, the ‘probability’ isn’t affected. I put ‘probability’ in quotes because the probabilities are going to be summed for the letters in the positions and then add 0 if the letters are repeated. This will make all words with repeated letters head to the bottom of the list, but it won’t be an accurate representation of the probability.</p>
 
@@ -428,4 +428,5 @@
 
 <p>Something that is interesting and I might try to figure out is what is the best information/color to recieve? Which narrows down the most? Yellow, green or black/white? It’s definitely dependant on the letter so that’s why I think it would be a good idea to follow this little experiment since what I’ve done is probably most of the hard work.</p>
 
+<p><strong>Thank you for reading this data analysis post! I am always learning and willing to learn so if you have any constructive criticism or comments, please feel free to contact me!</strong></p>
 :ET
