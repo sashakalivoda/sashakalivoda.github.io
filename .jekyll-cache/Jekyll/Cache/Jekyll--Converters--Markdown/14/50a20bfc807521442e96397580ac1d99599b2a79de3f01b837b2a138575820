@@ -1,0 +1,494 @@
+I"F�<h1 id="background">Background</h1>
+
+<p>According to the CDC, heart disease is the leading cause of death in the United States so being able to detect it early is important for saving lives. We can try to predict whether someone has heart disease by looking at multiple key indicators and building a logistic regression model. I found the data used <a href="https://www.kaggle.com/kamilpytlak/personal-key-indicators-of-heart-disease">here</a> but the data was extracted from a CDC annual survey of 400,000 people in the U.S. We can try to build a good logistic regression model using this data.</p>
+
+<h1 id="data-cleaning">Data Cleaning</h1>
+
+<p>After importing the necessary packages, we can see if there is any data needing to clean. Luckily for me, there aren’t any NULL values in the dataset, nor any values that are out of the ordinary in their respective columns.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="n">pd</span>
+  <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+  <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+  <span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="n">sns</span>
+  <span class="kn">import</span> <span class="nn">warnings</span>
+  <span class="n">warnings</span><span class="p">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s">"ignore"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s">'heart_2020_cleaned.csv'</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">.</span><span class="n">info</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  &lt;class 'pandas.core.frame.DataFrame'&gt;
+  RangeIndex: 319795 entries, 0 to 319794
+  Data columns (total 18 columns):
+   #   Column            Non-Null Count   Dtype  
+  ---  ------            --------------   -----  
+   0   HeartDisease      319795 non-null  object 
+   1   BMI               319795 non-null  float64
+   2   Smoking           319795 non-null  object 
+   3   AlcoholDrinking   319795 non-null  object 
+   4   Stroke            319795 non-null  object 
+   5   PhysicalHealth    319795 non-null  float64
+   6   MentalHealth      319795 non-null  float64
+   7   DiffWalking       319795 non-null  object 
+   8   Sex               319795 non-null  object 
+   9   AgeCategory       319795 non-null  object 
+   10  Race              319795 non-null  object 
+   11  Diabetic          319795 non-null  object 
+   12  PhysicalActivity  319795 non-null  object 
+   13  GenHealth         319795 non-null  object 
+   14  SleepTime         319795 non-null  float64
+   15  Asthma            319795 non-null  object 
+   16  KidneyDisease     319795 non-null  object 
+   17  SkinCancer        319795 non-null  object 
+  dtypes: float64(4), object(14)
+  memory usage: 43.9+ MB
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+<h1 id="data-exploration">Data Exploration</h1>
+
+<p>Let’s take a look at the data and see what we can learn about it. First, let’s look at the data in the heart disease column since that is what we are going to try to build our model on.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The percent of people surveyed without heart disease is:   91.44%
+  The percent of people surveyed with heart disease is:      8.56%
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_8_0.png" alt="png" /></p>
+
+<p>As we can see there is a large imbalance of data of heart disease prevelance in our dataset. This will be important later on. The percent of people who don’t have heart disease is 91.44% while the percent of people who do is 8.56%. It’s definitely a good thing that the percentage of people with heart disease is less than 9%, but it’s not the best to build a model.</p>
+
+<p>Next, let’s look at some different demographics in the dataset.</p>
+
+<p><img src="/img/posts/heart_p1/output_11_0.png" alt="png" /></p>
+
+<p>There is about an even amount of people who are male and female which is good. There is also a decent spread of different ages with a slight increase of people towards the older age groups. I’m not sure if that is an accurate spread of the U.S. population as a whole, but it’s not bad for our model. There is an uneven spread of the population of different races with ‘white’ being majority around 77%. While there is a majority of white people in the U.S., the percentage is closer to 60% and not 77% so it’s not an accurate representation of the United States.</p>
+
+<p><img src="/img/posts/heart_p1/output_13_0.png" alt="png" /></p>
+
+<p>There is a huge percent (41.2%) of the surveyed adults that are smokers or have smoked at least 20 packs in their life. There is a much smaller amount of heavy drinkers (14 drinks per week for men, 7 for women) with heavy drinkers taking up 6.8% of the dataset population.</p>
+
+<p><img src="/img/posts/heart_p1/output_15_0.png" alt="png" /></p>
+
+<p>A large percent of adults said that they have done physical activity within the past 30 days other than at work. A smaller percent of adults said that they have asthma and/or have difficulty walking or climbing up stairs.</p>
+
+<p><img src="/img/posts/heart_p1/output_17_0.png" alt="png" /></p>
+
+<p>There’s a lot of variation in Physical Health and Mental Health graphs. The Sleep Time graph looks Gaussian around the 8 hour mark which makes sense since people should aim for 8 hours of sleep. Adults seem to have better than average general health according to the General Health graph. The BMI graph shows the BMI peaking around 25-30 with a large majority of people having a BMI in between 20 and 40.</p>
+
+<p><img src="/img/posts/heart_p1/output_19_0.png" alt="png" /></p>
+
+<p>A large amount of people have said that they haven’t had skin cancer, a stroke, kidney disease, or diabetes.</p>
+
+<h3 id="using-tableau">Using Tableau</h3>
+
+<p>This data exploration is necessary to understand how even the dataset is, but we would also like to see how the data changes with different filters. Such as, how many people who have had a stroke also have heart disease? We can come up with many questions and come up with a lot of graphs to create, but the easier way is to go on Tableau and create an interactive dashboard so that we can look at the combinations much faster. You can go to the dashboard by clicking <a href="https://public.tableau.com/app/profile/sasha.kalivoda/viz/HeartDiseaseintheU_S_/Dashboard2"><strong>here</strong></a>.</p>
+
+<p>If we click on the percent of people who have heart disease we can see that the percent of people with heart disease increases with age. Also, heart disease is more prevalent in males and smokers. These are just a few small factors we can see clearly see through data exploration.</p>
+
+<h1 id="logistic-regression">Logistic Regression</h1>
+
+<p>Let’s get started with the logistic regression model and see how much we can improve it as we attempt different methods. First we need to import all the necessary packages and convert the ‘HeartDisease’ column into binary data type.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+  <span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+  <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">f1_score</span><span class="p">,</span> <span class="n">accuracy_score</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">classification_report</span>
+  <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">average_precision_score</span><span class="p">,</span> <span class="n">precision_recall_curve</span>
+  <span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">auc</span><span class="p">,</span> <span class="n">plot_precision_recall_curve</span>
+  <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">df</span><span class="p">[</span><span class="s">"HeartDisease"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'HeartDisease'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h3 id="testing-with-only-the-numerical-values-given">Testing with only the numerical values given</h3>
+
+<p>Logistic regression models (and every model) only work with numbers. The original dataset only had four columns with numerical values (‘BMI’,’PhysicalHealth’, ‘MentalHealth’, and ‘SleepTime’) so we will build a logistic regression using those four columns first and see good it is.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="s">'BMI'</span><span class="p">,</span><span class="s">'PhysicalHealth'</span><span class="p">,</span><span class="s">'MentalHealth'</span><span class="p">,</span><span class="s">'SleepTime'</span><span class="p">]]</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'HeartDisease'</span><span class="p">]</span>
+
+  <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">logmodel</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+  <span class="n">logmodel</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+  <span class="n">y_pred_prob</span> <span class="o">=</span> <span class="n">logmodel</span><span class="p">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_test</span><span class="p">)[::,</span><span class="mi">1</span><span class="p">]</span>
+
+  <span class="n">fpr</span><span class="p">,</span> <span class="n">tpr</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">.</span><span class="n">roc_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_prob</span><span class="p">)</span>
+  <span class="n">area</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_prob</span><span class="p">)</span>
+
+  <span class="n">precision</span><span class="p">,</span> <span class="n">recall</span><span class="p">,</span> <span class="n">thresholds</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_prob</span><span class="p">)</span>
+  <span class="n">auc_precision_recall</span> <span class="o">=</span> <span class="n">auc</span><span class="p">(</span><span class="n">recall</span><span class="p">,</span> <span class="n">precision</span><span class="p">)</span>
+  <span class="n">avg_precision</span> <span class="o">=</span> <span class="n">average_precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred_prob</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.9135909275685592
+  The average precision of the model is:  0.15680306843908814
+  The f1-score of the model is:  0.00024119633381572598
+
+
+                precision    recall  f1-score   support
+
+             0       0.91      1.00      0.95     87649
+             1       0.50      0.00      0.00      8290
+
+      accuracy                           0.91     95939
+     macro avg       0.71      0.50      0.48     95939
+  weighted avg       0.88      0.91      0.87     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_27_1.png" alt="png" /></p>
+
+<p>As we can see, the model is 91% accurate already only using those four columns. This might seem good but taking a better look we notice that it predicted a negative result for all of the test inputs but two of them, and even then it got one wrong. This is because of how unbalanced the dataset is, there is 91% negative cases and 9% positive cases so it will be 91% accurate if it only guesses negative. What we want to look at is the F1-Score which will give us a better evaluation of the model and the unbalanced dataset. We can see the F1-Score for this model is almost 0 which means that it’s a terrible model.</p>
+
+<p>We can also take a look at the Recieving Operating Characteristic which graphs the True Positive rate to the False Positive rate.</p>
+
+<p><img src="/img/posts/heart_p1/output_29_0.png" alt="png" /></p>
+
+<p>What we are looking for here is a large area under the curve (AUC) that is close to 1 and a steep incline. From the graph we can see that the AUC is 0.64 which is close to 0.5 which means it is not a good model. Also the incline is not very steep. There are definitely improvements that can be made to this model.</p>
+
+<p>For medical logistic regressions, another graph that is a good measure of the model is the Precision-Recall curve. This measures the precision of the model (true positive / true positive + false positive) over the recall (true positive / true positive + false negative).</p>
+
+<p><img src="/img/posts/heart_p1/output_31_0.png" alt="png" /></p>
+
+<p>Again with this graph we would like the area under the curve to be as close to 1 as possible. The area under this graph is 0.15 which shows that it is a terrible model.</p>
+
+<h3 id="one-hot-encoding">One-hot encoding</h3>
+
+<p>There are two different ways to label variables: one-hot encoding and label encoding. One-hot encoding is to create dummy variables where there is a binary value for each distinct class and creating a new column for each class. This can easily lead to problems with dimensionality.</p>
+
+<p>Label encoding is applying a value to each distinct class and leaving them all in a column. This can lead to problems where there are ordinal values in situations where it is not necessary for them.</p>
+
+<p>We are going to start with one-hot encoding and creating a binary value for each distinct class and seeing how the model improves with that.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">df</span><span class="p">[</span><span class="s">"Smoking"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Smoking'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"AlcoholDrinking"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'AlcoholDrinking'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"Stroke"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Stroke'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"DiffWalking"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'DiffWalking'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"Sex"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Sex'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Male'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"PhysicalActivity"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'PhysicalActivity'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"Asthma"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Asthma'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"KidneyDisease"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'KidneyDisease'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">"SkinCancer"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'SkinCancer'</span><span class="p">]</span> <span class="o">==</span> <span class="s">'Yes'</span><span class="p">).</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">race</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Race'</span><span class="p">],</span> <span class="n">drop_first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="n">diabetic</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'Diabetic'</span><span class="p">],</span><span class="n">drop_first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="n">age</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'AgeCategory'</span><span class="p">],</span><span class="n">drop_first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+  <span class="n">health</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">get_dummies</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s">'GenHealth'</span><span class="p">],</span><span class="n">drop_first</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+  <span class="n">ddf</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'Race'</span><span class="p">,</span><span class="s">'Diabetic'</span><span class="p">,</span><span class="s">'AgeCategory'</span><span class="p">,</span><span class="s">'GenHealth'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="n">race</span><span class="p">,</span><span class="n">diabetic</span><span class="p">,</span><span class="n">age</span><span class="p">,</span><span class="n">health</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">X</span> <span class="o">=</span> <span class="n">ddf</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'HeartDisease'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">y</span> <span class="o">=</span> <span class="n">ddf</span><span class="p">[</span><span class="s">'HeartDisease'</span><span class="p">]</span>
+
+  <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.9144664839116522
+  The average precision of the model is:  0.33586142968954535
+  The f1-score of the model is:  0.1657177714518097
+
+
+                precision    recall  f1-score   support
+
+             0       0.92      0.99      0.95     87649
+             1       0.53      0.10      0.17      8290
+
+      accuracy                           0.91     95939
+     macro avg       0.72      0.54      0.56     95939
+  weighted avg       0.89      0.91      0.89     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_38_1.png" alt="png" /></p>
+
+<p>As we can see there’s already a huge improvement in the F1-score of the model (0.16 instead of 0) and the precision as well (0.335 instead of 0.16). Not only that but the accuracy didn’t drop by that much either.</p>
+
+<p><img src="/img/posts/heart_p1/output_40_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_41_0.png" alt="png" /></p>
+
+<p>We can see from the graphs how the model improved as well. This is due to the large amount of data we added by changing the data into numerical values.</p>
+
+<h3 id="making-label-encoded-variables">Making label encoded variables</h3>
+
+<p>Another way of encoding variables is by label encoding. The variables that only have ‘Yes’ or ‘No’ as classes are going to be encoded the same as the one-hot encoding. However, there are some variables such as AgeCategory that have many distinct classes so they will have multiple values for the variable. I set the variables AgeCategory and GenHealth from youngest to oldest and worse to best respectively so that there is an ordinal scale. The variables Race and Diabetic I don’t know how to order so I let them be labelled in any order.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">df</span><span class="p">[</span><span class="s">'AgeCategory'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'AgeCategory'</span><span class="p">].</span><span class="n">replace</span><span class="p">([</span><span class="s">'18-24'</span><span class="p">,</span><span class="s">'25-29'</span><span class="p">,</span><span class="s">'30-34'</span><span class="p">,</span><span class="s">'35-39'</span><span class="p">,</span><span class="s">'40-44'</span><span class="p">,</span><span class="s">'45-49'</span><span class="p">,</span><span class="s">'50-54'</span><span class="p">,</span><span class="s">'55-59'</span><span class="p">,</span><span class="s">'60-64'</span><span class="p">,</span><span class="s">'65-69'</span><span class="p">,</span> <span class="s">'70-74'</span><span class="p">,</span><span class="s">'75-79'</span><span class="p">,</span><span class="s">'80 or older'</span><span class="p">],</span>
+                           <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">])</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">'GenHealth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'GenHealth'</span><span class="p">].</span><span class="n">replace</span><span class="p">([</span><span class="s">'Excellent'</span><span class="p">,</span><span class="s">'Fair'</span><span class="p">,</span><span class="s">'Good'</span><span class="p">,</span><span class="s">'Poor'</span><span class="p">,</span><span class="s">'Very good'</span><span class="p">],</span>
+                                            <span class="p">[</span><span class="mi">4</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">'Race'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'Race'</span><span class="p">].</span><span class="n">replace</span><span class="p">([</span><span class="s">'White'</span><span class="p">,</span><span class="s">'Black'</span><span class="p">,</span><span class="s">'Asian'</span><span class="p">,</span><span class="s">'American Indian/Alaskan Native'</span><span class="p">,</span><span class="s">'Hispanic'</span><span class="p">,</span><span class="s">'Other'</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">])</span>
+  <span class="n">df</span><span class="p">[</span><span class="s">'Diabetic'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s">'Diabetic'</span><span class="p">].</span><span class="n">replace</span><span class="p">([</span><span class="s">'No'</span><span class="p">,</span><span class="s">'Yes'</span><span class="p">,</span><span class="s">'No, borderline diabetes'</span><span class="p">,</span> <span class="s">'Yes (during pregnancy)'</span><span class="p">],</span>
+                                         <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.9139453194217159
+  The average precision of the model is:  0.3344891956337572
+  The f1-score of the model is:  0.19657454262358895
+
+
+                precision    recall  f1-score   support
+
+             0       0.92      0.99      0.95     87649
+             1       0.51      0.12      0.20      8290
+
+      accuracy                           0.91     95939
+     macro avg       0.72      0.56      0.58     95939
+  weighted avg       0.89      0.91      0.89     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_45_1.png" alt="png" /></p>
+
+<p>We can see that the F1-Score improved again, this time by 0.03. The accuracy stayed about the same but the precision dropped by a small amount 0.001.</p>
+
+<p><img src="/img/posts/heart_p1/output_47_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_48_0.png" alt="png" /></p>
+
+<p>The graphs show how the ROC curve improved a little while the PR curve got a little worse.</p>
+
+<h3 id="making-race-and-diabetic-dummy-variables">Making Race and Diabetic dummy variables</h3>
+
+<p>Like I stated in the previous section, I didn’t know what order to set the distinct classes in for the Race and Diabetic varibles so I decided to go back to one-hot encoding for them and leave the others as they were.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">.</span><span class="n">drop</span><span class="p">([</span><span class="s">'Race'</span><span class="p">,</span><span class="s">'Diabetic'</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span><span class="n">race</span><span class="p">,</span><span class="n">diabetic</span><span class="p">],</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.9142371715360802
+  The average precision of the model is:  0.33708622947372885
+  The f1-score of the model is:  0.168216740800647
+
+
+                precision    recall  f1-score   support
+
+             0       0.92      0.99      0.95     87649
+             1       0.52      0.10      0.17      8290
+
+      accuracy                           0.91     95939
+     macro avg       0.72      0.55      0.56     95939
+  weighted avg       0.89      0.91      0.89     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_53_1.png" alt="png" /></p>
+
+<p>The accuracy and precision are the best we’ve had so far for the model but the F1-score dropped again to 0.16.</p>
+
+<p><img src="/img/posts/heart_p1/output_55_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_56_0.png" alt="png" /></p>
+
+<p>Again, we can see from the graphs how the ROC curve and PR curve improved. Let’s see if there are other ways of improving the model.</p>
+
+<h3 id="normalizing">Normalizing</h3>
+
+<p>We can try to normalize the variables so that they are all contained between the values of 0 and 1. This will be useful especially for the values that have a large range of numbers like BMI, PhysicalHealth, MentalHealth, and SleepTime.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">MinMaxScaler</span>
+
+  <span class="n">scaler</span> <span class="o">=</span> <span class="n">MinMaxScaler</span><span class="p">(</span><span class="n">feature_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+
+  <span class="n">scaler</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+  <span class="n">X_train</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+  <span class="n">X_test</span> <span class="o">=</span> <span class="n">scaler</span><span class="p">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.9144873304912496
+  The average precision of the model is:  0.3384307181950067
+  The f1-score of the model is:  0.17464788732394365
+
+
+                precision    recall  f1-score   support
+
+             0       0.92      0.99      0.95     87649
+             1       0.53      0.10      0.17      8290
+
+      accuracy                           0.91     95939
+     macro avg       0.72      0.55      0.56     95939
+  weighted avg       0.89      0.91      0.89     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_60_1.png" alt="png" /></p>
+
+<p>The F1-Score improved again to 0.17 but it’s still not as good as the 0.19 that it was before. The precision and accuracy improved as well.</p>
+
+<p><img src="/img/posts/heart_p1/output_62_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_63_0.png" alt="png" /></p>
+
+<p>Again, we can see that the graphs improved by looking at the area under the curve.</p>
+
+<h3 id="messing-around-with-class-weights">Messing around with class weights</h3>
+
+<p>We’ve changed the data and normalized it to the point where we are happy with it. We can now work with the model to see if there are ways to improve it. From the start of the project we noticed how unbalanced the data was in the dataset. This makes it harder for the model to predict when there is a positive case because there is more information on the negative cases. To counter act this we can put more weight on the positive case characteristics and increasing the penalty for getting a positive case wrong.</p>
+
+<p>Let’s first try out setting the class weight to ‘balanced’ and seeing the results.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">logmodel</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="s">'balanced'</span><span class="p">)</span>
+  <span class="n">logmodel</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span><span class="n">y_train</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.7510709930268191
+  The average precision of the model is:  0.3380643387137209
+  The f1-score of the model is:  0.3497604007841429
+
+
+                precision    recall  f1-score   support
+
+             0       0.97      0.75      0.85     87649
+             1       0.23      0.77      0.35      8290
+
+      accuracy                           0.75     95939
+     macro avg       0.60      0.76      0.60     95939
+  weighted avg       0.91      0.75      0.80     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_68_1.png" alt="png" /></p>
+
+<p>As we can see, the model began to predict the positive case a lot more frequently. This dropped the accuracy by a lot (0.15) but also maintained the precision and drastically improved the the F1-score by doubling it. This resulted in a lot more positive cases being predicted correctly, but also created a lot of false positives. In medical fields, the false positive is a much better result than a false negative but if we can lessen the number of false positives it would be better.</p>
+
+<p><img src="/img/posts/heart_p1/output_70_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_71_0.png" alt="png" /></p>
+
+<p>The graphs show pretty much the same results as the previous graphs except a small change under the curve in the thousands.</p>
+
+<p>Although we prefer the F1-Score, let’s see if we can improve the F1-score but also maintain the accuracy.</p>
+
+<h3 id="gridsearch">Gridsearch</h3>
+
+<p>What we can do now is to search through the weights for the positive case and determine where the F1-score is at it’s peak. We can do the same for accuracy without changing too much.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">GridSearchCV</span><span class="p">,</span> <span class="n">StratifiedKFold</span>
+  <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">()</span>
+
+  <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span><span class="mf">0.99</span><span class="p">,</span><span class="mi">200</span><span class="p">)</span>
+
+  <span class="n">param_grid</span> <span class="o">=</span> <span class="p">{</span><span class="s">'class_weight'</span><span class="p">:</span> <span class="p">[{</span><span class="mi">0</span><span class="p">:</span><span class="n">x</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span><span class="mf">1.0</span><span class="o">-</span><span class="n">x</span><span class="p">}</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">weights</span><span class="p">]}</span>
+
+  <span class="n">gridsearch_f</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span> <span class="n">lr</span><span class="p">,</span> 
+                            <span class="n">param_grid</span><span class="o">=</span> <span class="n">param_grid</span><span class="p">,</span>
+                            <span class="n">cv</span><span class="o">=</span><span class="n">StratifiedKFold</span><span class="p">(),</span> 
+                            <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> 
+                            <span class="n">scoring</span><span class="o">=</span><span class="s">'f1'</span><span class="p">,</span> 
+                            <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+  <span class="n">gridsearch_a</span> <span class="o">=</span> <span class="n">GridSearchCV</span><span class="p">(</span><span class="n">estimator</span><span class="o">=</span> <span class="n">lr</span><span class="p">,</span> 
+                            <span class="n">param_grid</span><span class="o">=</span> <span class="n">param_grid</span><span class="p">,</span>
+                            <span class="n">cv</span><span class="o">=</span><span class="n">StratifiedKFold</span><span class="p">(),</span> 
+                            <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> 
+                            <span class="n">scoring</span><span class="o">=</span><span class="s">'accuracy'</span><span class="p">,</span> 
+                            <span class="n">verbose</span><span class="o">=</span><span class="mi">2</span><span class="p">).</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+  Fitting 5 folds for each of 200 candidates, totalling 1000 fits
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">sns</span><span class="p">.</span><span class="n">set_style</span><span class="p">(</span><span class="s">'whitegrid'</span><span class="p">)</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+  <span class="n">weigh_data_f</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span> <span class="s">'score'</span><span class="p">:</span> <span class="n">gridsearch_f</span><span class="p">.</span><span class="n">cv_results_</span><span class="p">[</span><span class="s">'mean_test_score'</span><span class="p">],</span> <span class="s">'weight'</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span> <span class="n">weights</span><span class="p">)})</span>
+  <span class="n">weigh_data_a</span> <span class="o">=</span> <span class="n">pd</span><span class="p">.</span><span class="n">DataFrame</span><span class="p">({</span> <span class="s">'score'</span><span class="p">:</span> <span class="n">gridsearch_a</span><span class="p">.</span><span class="n">cv_results_</span><span class="p">[</span><span class="s">'mean_test_score'</span><span class="p">],</span> <span class="s">'weight'</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span> <span class="n">weights</span><span class="p">)})</span>
+  <span class="n">sns</span><span class="p">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weigh_data_f</span><span class="p">[</span><span class="s">'weight'</span><span class="p">],</span><span class="n">y</span><span class="o">=</span><span class="n">weigh_data_f</span><span class="p">[</span><span class="s">'score'</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s">'F1-Score'</span><span class="p">)</span>
+  <span class="n">sns</span><span class="p">.</span><span class="n">lineplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">weigh_data_a</span><span class="p">[</span><span class="s">'weight'</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="n">weigh_data_a</span><span class="p">[</span><span class="s">'score'</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s">'Accuracy'</span><span class="p">)</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'Weight for class 1'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'Accuracy and F1 Score'</span><span class="p">,</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">([</span><span class="nb">round</span><span class="p">(</span><span class="n">i</span><span class="o">/</span><span class="mi">10</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">1</span><span class="p">)])</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'Scoring for different class weights'</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">24</span><span class="p">);</span>
+  <span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">();</span>
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_75_0.png" alt="png" /></p>
+
+<p>When looking at the graph we can see that the accuracy starts at it’s peak and goes down from there. Again, that is due to the imbalance of the data so with the data we have set up, changing the weights of the positive case will only drop the accuracy. However, it drops off like a 1/x graph so it doesn’t start a steep drop in accuracy until the 0.85 mark.</p>
+
+<p>The F1-score of the graph increases until it reaches a maximum around 0.8 and then drops as well. We want to find that maximum and apply that weight to the positive class. That will give us the highest F1-score value for the current model.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The highest F1-Score is:  0.39777055092794644
+</code></pre></div></div>
+
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>score</th>
+      <th>weight</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>40</th>
+      <td>0.397771</td>
+      <td>0.801005</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+<p>By doing a small calculation we can see that the highest F1-Score is 0.3977 and the positive case weight it gets there is at 0.801.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">class_weight</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="mf">0.19899497487437187</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="mf">0.8010050251256281</span><span class="p">})</span>
+  <span class="n">lr</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  The accuracy of the model is:  0.8711368682183471
+  The average precision of the model is:  0.3383437567166673
+  The f1 score for the testing data: 0.38878726454738716
+
+
+                precision    recall  f1-score   support
+
+             0       0.95      0.91      0.93     87649
+             1       0.33      0.47      0.39      8290
+
+      accuracy                           0.87     95939
+     macro avg       0.64      0.69      0.66     95939
+  weighted avg       0.89      0.87      0.88     95939
+</code></pre></div></div>
+
+<p><img src="/img/posts/heart_p1/output_80_1.png" alt="png" /></p>
+
+<p>Applying the weight we have now acheived the highest F1-Score so far without sacrificing too much accuracy. The precision has also maintained it’s value.</p>
+
+<p><img src="/img/posts/heart_p1/output_82_0.png" alt="png" /></p>
+
+<p><img src="/img/posts/heart_p1/output_83_0.png" alt="png" /></p>
+
+<p>The graphs have stayed the same, but the results are much better.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>We have been able to improve the model in many ways from the start of the project, but there is still a lot to be done. I think this may have to be a multiple part project but I am happy that I was able to improve the F1-Score by a lot.</p>
+
+<p>What would be next is to mess around with the threshholds even though that would also decrease the accuracy of the model. Another possible way is to try a different model instead of a logistic regression like a decision tree. That’s all for some other time though.</p>
+
+<p><strong>Thank you for taking the time to look at my post! I’m always trying to learn and improve so if you have any constructive criticism or advice please feel free to contact me!</strong></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+:ET
